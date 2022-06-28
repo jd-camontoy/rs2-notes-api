@@ -12,6 +12,14 @@ class SurveySettings(Resource):
         for number_of_respondents_option in data['number_of_respondents']:
             number_of_respondents_options.append(int(number_of_respondents_option))
         return number_of_respondents_options
+
+    def getKeywords(self):
+        db = Database.connect()
+        data = db.survey_settings.find_one({}, { '_id': 0, 'keywords_selection': 1 })
+        keyword_options = []
+        for keyword_selection in data['keywords_selection']:
+            keyword_options.append(keyword_selection)
+        return keyword_options
         
     def get(self):
         db = None
@@ -33,13 +41,8 @@ class SurveySettings(Resource):
                 }
 
             elif (setting == setting_param_option_keywords):
-                db = Database.connect()
-                data = db.survey_settings.find_one({}, { '_id': 0, 'keywords_selection': 1 })
-                keywords_selection_options = []
-                for keywords_selection_option in data['keywords_selection']:
-                    keywords_selection_options.append(keywords_selection_option)
                 return {
-                    'data': keywords_selection_options
+                    'data': self.getKeywords()
                 }
             
             else:
