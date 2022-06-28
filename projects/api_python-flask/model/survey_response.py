@@ -6,12 +6,14 @@ from database import Database
 from bson.objectid import ObjectId
 from datetime import datetime
 from pymongo import MongoClient
+from model.survey_settings import SurveySettings
 
 class SurveyResponse(Resource):
     def post(self):
         db = None
         selected_motivated = 1
         selected_demotivated = 2
+        keyword_selection = SurveySettings.getKeywords(SurveySettings)
         try:
             parser = reqparse.RequestParser()
             parser.add_argument('params', type=str, help='')
@@ -43,10 +45,16 @@ class SurveyResponse(Resource):
                     'message' : '`answer_motivated` parameter does not have the proper value'
                 }, 400
 
+            submitted_keywords_valid = True
+            for submitted_keyword in answer_keywords:
+                if (submitted_keyword not in keyword_selection):
+                    submitted_keywords_valid = False
+                    break
 
             if (
                 not isinstance(answer_keywords, list) or
-                not answer_keywords
+                not answer_keywords or
+                not submitted_keywords_valid
             ):
                 return {
                     'success' : False,
