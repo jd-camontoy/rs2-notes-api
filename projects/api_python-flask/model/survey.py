@@ -10,12 +10,6 @@ class Survey(Resource):
     def get(self):
         db = None
         try:
-            # parser = reqparse.RequestParser()
-            # parser.add_argument('token', type=str, help='')
-            # args = parser.parse_args()
-
-            # token = args['token'] if 'token' in args else None
-
             token = request.args.get('token') if 'token' in request.args else None
 
             if (token == None):
@@ -33,13 +27,11 @@ class Survey(Resource):
                     'message' : 'Survey does not exist'
                 }, 404
             else:
-                # response_count = 10
                 response_count = db.survey_response.count_documents({ 'survey_token': token })
                 survey_response_limit = data['no_of_respondents']
                 current_datetime = datetime.now()
-                # current_datetime = data['expires_at']
                 survey_expiry_datetime = data['expires_at']
-
+                
                 if (response_count >= survey_response_limit):
                     return {
                         'success' : False,
