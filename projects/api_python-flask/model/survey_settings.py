@@ -12,9 +12,6 @@ class SurveySettings(Resource):
         for number_of_respondents_option in data['number_of_respondents']:
             number_of_respondents_options.append(int(number_of_respondents_option))
         return number_of_respondents_options
-        # return {
-        #     'data': number_of_respondents_options
-        # }
         
     def get(self):
         db = None
@@ -22,13 +19,7 @@ class SurveySettings(Resource):
         setting_param_option_keywords = "keywords"
         setting_param_options = [setting_param_option_respondents, setting_param_option_keywords]
         try:
-            # parser = reqparse.RequestParser()
-            # parser.add_argument('setting', type=str, help='')
-            # args = parser.parse_args()
-
             setting = request.args.get('setting') if 'setting' in request.args else None
-
-            # setting = args['setting'] if 'setting' in args else None
 
             if (setting == None):
                 return {
@@ -37,7 +28,6 @@ class SurveySettings(Resource):
                 }, 400
 
             if (setting == setting_param_option_respondents):
-                # return self.getNoOfRespondents()
                 return {
                     'data': self.getNoOfRespondents()
                 }
