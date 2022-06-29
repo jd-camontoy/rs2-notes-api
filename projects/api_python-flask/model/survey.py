@@ -3,10 +3,28 @@ import os
 from flask import jsonify
 from flask_restful import Resource, reqparse, request
 from database import Database
-from datetime import datetime
+from bson.objectid import ObjectId
+from datetime import datetime, timedelta
 from pymongo import MongoClient
+from model.survey_settings import SurveySettings
+# from bson.objectid import ObjectId
+# from bson.json_util import dumps
+import uuid
+import re
+import hashlib
 
 class Survey(Resource):
+    # Enhance hashing
+    def hashPassword(self, password):
+        hashString = hashlib.sha1(password.encode('utf-8'))
+        hashedString = hashString.hexdigest()
+        no_of_iterations = os.getenv('HASH_ITERATION')
+        for i in range(int(no_of_iterations)):
+            hashedString = hashedString + str(i)
+            hashString = hashlib.sha1(hashedString.encode('utf-8'))
+            hashedString = hashString.hexdigest()
+        return hashedString
+
     def get(self):
         db = None
         try:
@@ -62,6 +80,79 @@ class Survey(Resource):
                         }
                     }
 
+        except Exception as exception:
+            return {'error': str(exception)}, 500
+        finally:
+            if type(db) == MongoClient:
+                db.close()
+
+    def post(self):
+        db = None
+        survey_respondent_options = SurveySettings.getNoOfRespondents(SurveySettings)
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument('params', type=str, help='')
+            args = parser.parse_args()
+            params = json.loads(args['params'])
+
+            survey_no_of_respondents = params['survey_no_of_respondents'] if 'survey_no_of_respondents' in params else None
+            survey_dashboard_password = params['survey_dashboard_password'] if 'survey_dashboard_password' in params else None
+
+            if (
+                survey_no_of_respondents == None or
+                survey_dashboard_password == None
+            ):
+                return {
+                    'success' : False,
+                    'message' : 'Incomplete parameters'
+                }, 400
+
+            if (survey_no_of_respondents not in survey_respondent_options):
+                return {
+                    'success' : False,
+                    'message' : '`survey_no_of_respondents` parameter does not have the proper value'
+                }, 400
+
+            # Password checking and storage to follow
+            password_min_char = 6
+            regex = re.compile(r"^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&])([a-zA-Z0-9!?@#$%^&]+)$")
+            password_regex_check = regex.match(survey_dashboard_password)
+            password_regex_check_result = password_regex_check.group(1) == survey_dashboard_password if password_regex_check != None else False
+            password_length_check_result = len(survey_dashboard_password) >= password_min_char
+
+            if (
+                password_regex_check_result == False or
+                password_length_check_result == False
+            ):
+                return {
+                    'success' : False,
+                    'message' : '`survey_dashboard_password` parameter does not have the proper value'
+                }, 400
+
+            # Hashing of password
+            hashedPassword = self.hashPassword(survey_dashboard_password)
+
+            survey_token = uuid.uuid4().hex[:6].upper()
+            current_datetime = datetime.now()
+            current_datetime_added_24_hrs = current_datetime + timedelta(days=1)
+
+            data = {
+                "token": survey_token,
+                "dashboard_password": hashedPassword,
+                "no_of_respondents": survey_no_of_respondents,
+                "created_at": current_datetime,
+                "expires_at": current_datetime_added_24_hrs
+            }
+
+            db = Database.connect()
+            result = db.survey.insert_one(data).inserted_id
+            if type(result) == ObjectId:
+                return {
+                    'success': True,
+                    'message': 'Survey successfully created',
+                    'token': survey_token
+                }
+            
         except Exception as exception:
             return {'error': str(exception)}, 500
         finally:
