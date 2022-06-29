@@ -56,5 +56,3 @@ class Login(Resource):
         finally:
             if type(db) == MongoClient:
                 db.close()
-
-        
