@@ -7,8 +7,6 @@ from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 from model.survey_settings import SurveySettings
-# from bson.objectid import ObjectId
-# from bson.json_util import dumps
 import uuid
 import re
 import hashlib
