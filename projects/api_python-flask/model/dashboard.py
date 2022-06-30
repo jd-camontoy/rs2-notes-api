@@ -9,8 +9,6 @@ class Dashboard(Resource):
     def post(self):
         db = None
         try:
-            # token = request.args.get('token') if 'token' in request.args else None
-
             parser = reqparse.RequestParser()
             parser.add_argument('token', type=str, help='')
             args = parser.parse_args()
@@ -32,24 +30,15 @@ class Dashboard(Resource):
                     'message' : 'Survey does not exist'
                 }, 404
             else:
-                # Add proper data needed for keywords statistic
-
                 current_response_count = db.survey_response.count_documents({ 'survey_token': token })
-                response_limit = data['no_of_respondents']
                 motivated_response_count = db.survey_response.count_documents({ 'survey_token': token, 'motivated': True })
                 demotivated_reponse_count = db.survey_response.count_documents({ 'survey_token': token, 'motivated': False })
 
-                # Testing for more complex keyword statistic fetch
-
-                # demotivated_mention_count_for_keyword = {}
-                # motivated_mention_count_for_keyword = {}
-
+                response_limit = data['no_of_respondents']
                 mention_count_for_keyword = []
-
                 data = db.survey_settings.find_one({}, { '_id': 0, 'keywords_selection': 1 })
 
                 for keywords_selection_option in data['keywords_selection']:
-                    # keyword = str(keywords_selection_option.lower())
                     keyword_result_motivated = db.survey_response.count_documents({ 
                         'survey_token': token,
                         'motivated': True,
