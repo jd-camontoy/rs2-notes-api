@@ -1,5 +1,6 @@
 import json
 import os
+import pprint
 from flask import jsonify
 from flask_restful import Resource, reqparse, request
 from database import Database
@@ -22,9 +23,9 @@ class Dashboard(Resource):
                 }, 400
 
             db = Database.connect()
-            data = db.survey.find_one({ 'token': token })
+            surveyData = db.survey.find_one({ 'token': token })
 
-            if (data == None):
+            if (surveyData == None):
                 return {
                     'success' : False,
                     'message' : 'Survey does not exist'
@@ -34,11 +35,15 @@ class Dashboard(Resource):
                 motivated_response_count = db.survey_response.count_documents({ 'survey_token': token, 'motivated': True })
                 demotivated_reponse_count = db.survey_response.count_documents({ 'survey_token': token, 'motivated': False })
 
-                response_limit = data['no_of_respondents']
-                mention_count_for_keyword = []
-                data = db.survey_settings.find_one({}, { '_id': 0, 'keywords_selection': 1 })
+                latestReceivedResponseDate = db.survey_response.find_one({ 'survey_token': token }, { '_id': 0, 'created_at': 1 }, sort=[( 'created_at', -1 )])
 
-                for keywords_selection_option in data['keywords_selection']:
+                response_limit = surveyData['no_of_respondents']
+                survey_expiration_date = surveyData['expires_at']
+
+                mention_count_for_keyword = []
+                keywordSelectionData = db.survey_settings.find_one({}, { '_id': 0, 'keywords_selection': 1 })
+
+                for keywords_selection_option in keywordSelectionData['keywords_selection']:
                     keyword_result_motivated = db.survey_response.count_documents({ 
                         'survey_token': token,
                         'motivated': True,
@@ -61,8 +66,13 @@ class Dashboard(Resource):
                     'response_limit': response_limit,
                     'motivated_response_count': motivated_response_count,
                     'demotivated_response_count': demotivated_reponse_count,
-                    'mention_count_for_keyword': mention_count_for_keyword
+                    'mention_count_for_keyword': mention_count_for_keyword,
+                    'survey_expiration_date': str(survey_expiration_date)
                 }
+
+                if (latestReceivedResponseDate != None):
+                    latestReceivedResponseDate = latestReceivedResponseDate['created_at']
+                    data['latest_response_received_date'] = str(latestReceivedResponseDate)
 
                 return {
                     'success': True,
