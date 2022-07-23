@@ -148,7 +148,8 @@ class Survey(Resource):
                 return {
                     'success': True,
                     'message': 'Survey successfully created',
-                    'token': survey_token
+                    'token': survey_token,
+                    'created_at': str(current_datetime)
                 }
             
         except Exception as exception:
