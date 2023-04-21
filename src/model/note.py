@@ -240,3 +240,56 @@ class Note(Resource):
         except Exception as exception:
             return {'error': str(exception)}, 500
 
+    def delete(self):
+        db = None
+
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument('params', type=str, help='')
+            args = parser.parse_args()
+            params = json.loads(args['params'])
+
+            note_id = params['note_id'] if 'note_id' in params else None
+
+            if (note_id == None):
+                return {
+                    'success' : False,
+                    'message' : 'Incomplete parameters'
+                }, 400
+
+            if (note_id == ""):
+                return {
+                    'success' : False,
+                    'message' : 'Cannot pass blank values'
+                }, 400
+
+            db = Database.connect()
+            cursor = db.cursor()
+
+            delete_note = """
+                DELETE FROM note WHERE id=?
+            """
+
+            cursor.execute(delete_note, (note_id,))
+            db.commit()
+            affected_rows = cursor.rowcount
+
+            if (affected_rows):
+                return {
+                    'success': True,
+                    'data': {
+                        'id': str(note_id),
+                        'affected_rows': str(affected_rows)
+                    }
+                }
+            else:
+                return {
+                    'success': False,
+                    'message': 'Entered credentials does not have a match'
+                }, 400
+            
+            db.close()
+
+        except Exception as exception:
+            return {'error': str(exception)}, 500
+
