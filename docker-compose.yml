@@ -1,24 +1,9 @@
 services:
   api-python-flask:
-    container_name: "mmm-api_python-flask"
-    build: ./projects/api_python-flask
+    container_name: "rs2-notes-api_python-flask"
+    build: ./src
     ports:
-      - "5005:5000"
+      - "5055:5000"
     volumes: 
-      - ./projects/api_python-flask:/usr/src/app
-    env_file:
-      - ./services/api_python-flask/.env
+      - ./src:/usr/src/app
     restart: always
-    links:
-      - api_mongo-db
-
-  api_mongo-db:
-    container_name: "mmm-api_mongo-db"
-    image: mongo:latest
-    hostname: mmm-api-db
-    volumes:
-      - ./services/api_mongo-db/initial_data.js:/docker-entrypoint-initdb.d/init-db.js:ro
-    env_file:
-      - ./services/api_mongo-db/.env
-    ports:
-      - 27017:27017

@@ -1,4 +1,4 @@
-# Motivation Meter Mini API
+# RS2 Note App API
 
 A small API that serves as the back-end service for Motivation Meter Mini web application. To see more details regarding Motivation Meter Mini web application, you may refer to its repository.
 
@@ -9,7 +9,7 @@ Created using Python with Flask RESTful, and MongoDB as the storage.
 
 To start, ensure that you are on the project's directory.
 ```
-cd motivation-meter-mini
+cd rs2-notes-api
 ```
 
 Then run the following Docker command to install build the containers
