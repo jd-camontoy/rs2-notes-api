@@ -1,7 +1,7 @@
 # RS2 Note App API
 
 A small API that serves as the back-end service for RS2 Notes web application. To see more details regarding RS2 Notes web application, you may refer to its repository.
-https://github.com/jd-camontoy/rs2-notes-api
+https://github.com/jd-camontoy/rs2-notes-app
 
 Created using Python with Flask RESTful, MongoDB as the storage, and Docker as the environment provider and container
 
