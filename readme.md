@@ -1,11 +1,14 @@
 # RS2 Note App API
 
-A small API that serves as the back-end service for Motivation Meter Mini web application. To see more details regarding Motivation Meter Mini web application, you may refer to its repository.
+A small API that serves as the back-end service for RS2 Notes web application. To see more details regarding RS2 Notes web application, you may refer to its repository.
+https://github.com/jd-camontoy/rs2-notes-api
 
-Created using Python with Flask RESTful, and MongoDB as the storage.
+Created using Python with Flask RESTful, MongoDB as the storage, and Docker as the environment provider and container
 
 
 ## Get Started
+
+Please ensure that the local machine as Docker installed, and is connected to the internet.
 
 To start, ensure that you are on the project's directory.
 ```
