@@ -5,6 +5,8 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
+COPY script.sh ./
 RUN chmod a+x script.sh
-CMD [ "./script.sh" ]
+COPY . .
+# CMD [ "script.sh" ]
+ENTRYPOINT [ "sh", "script.sh" ]
